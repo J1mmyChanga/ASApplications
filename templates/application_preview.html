@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр заявки #{{ application.id }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .preview-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .preview-header {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .application-title {
+            flex: 1;
+        }
+        
+        .application-title h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .application-id {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Основной контент */
+        .preview-content {
+            padding: 30px;
+        }
+        
+        /* ДВЕ ПАНЕЛИ СВЕРХУ */
+        .top-sections {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .top-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-section {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 4px solid var(--primary);
+            height: 100%;
+        }
+        
+        .info-section h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+        }
+        
+        .info-item {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--secondary);
+            min-width: 150px;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        /* Статус */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .status-new {
+            background: #f1d1d1;
+            color: #601d0c;
+        }
+        
+        .status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Фотографии */
+        .photos-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eaeaea;
+        }
+        
+        .photos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .photos-count {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .photo-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            aspect-ratio: 4/3;
+        }
+        
+        .photo-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+        }
+        
+        .photo-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 15px;
+            color: white;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        
+        .photo-item:hover .photo-info {
+            transform: translateY(0);
+        }
+        
+        .photo-name {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .photo-size {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .no-photos {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .no-photos i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+        
+        /* Описание проблемы */
+        .description-section {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .description-content {
+            font-size: 18px;
+            font-weight: 600px;
+            background: white;
+            border-radius: 8px;
+            line-height: 1.6;
+            white-space: pre-line;
+            margin-top: 5px;
+        }
+        
+        /* Футер */
+        .preview-footer {
+            padding: 30px;
+            background: var(--light);
+            border-top: 2px solid #eaeaea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-info {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .footer-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .info-section, .photo-item, .description-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .preview-header {
+                padding: 20px;
+            }
+            
+            .preview-content {
+                padding: 20px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+            }
+            
+            .preview-footer {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .photos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .info-label {
+                min-width: auto;
+            }
+        }
+        
+        /* Дополнительные стили */
+        .timestamp {
+            color: #7f8c8d;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .room-badge {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .phone-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .phone-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Выравнивание внутри панелей */
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* Заголовки в одной линии */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--secondary);
+        }
+        
+        /* Исправление для выравнивания высоты панелей */
+        .equal-height {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .equal-height .info-grid {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <!-- Шапка -->
+        <header class="preview-header">
+            <div class="header-content">
+                <div class="application-title">
+                    <h1>
+                        <i class="fas fa-file-alt"></i> Заявка на ремонт
+                        <span class="application-id">#{{ application.id }}</span>
+                    </h1>
+                    <div class="timestamp">
+                        <i class="far fa-calendar"></i>
+                        Создано: {{ application.created_at.strftime('%d.%m.%Y в %H:%M') if application.created_at else 'Не указано' }}
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Основной контент -->
+        <main class="preview-content">
+            <!-- ДВЕ ПАНЕЛИ СВЕРХУ -->
+            <div class="top-sections">
+                <!-- Панель 1: Информация о заявителе -->
+                <section class="info-section equal-height">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-user"></i> Информация о заявителе
+                        </h2>
+                    </div>
+                    
+                    <div class="info-grid" style="font-weight: 600; font-size: 16px;">
+                        <div class="info-item">
+                            <span class="info-label">ФИО:</span>
+                            <span class="info-value">{{ application.name if application.name else 'Не указано' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Телефон:</span>
+                            <span class="info-value">
+                                {% set phone = application.phoneNumber if application.phoneNumber else None %}
+                                {% if phone %}
+                                    <a href="tel:{{ phone }}" class="phone-link">
+                                        <i class="fas fa-phone"></i> {{ phone }}
+                                    </a>
+                                {% else %}
+                                    Не указано
+                                {% endif %}
+                            </span>
+                        </div>
+                    
+                        
+                        <div class="info-item">
+                            <span class="info-label">Уведомления:</span>
+                            <span class="info-value">
+                                {% if application.notify %}
+                                    <i class="fas fa-bell" style="color: #27ae60;"></i> Включены
+                                {% else %}
+                                    <i class="fas fa-bell-slash" style="color: #e74c3c;"></i> Отключены
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Панель 2: Местоположение и статус -->
+                <section class="info-section equal-height">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-map-marker-alt"></i> Местоположение и статус
+                        </h2>
+                    </div>
+                    
+                    <div class="info-grid" style="font-weight: 600; font-size: 16px;">
+                        <div class="info-item">
+                            <span class="info-label">Помещение:</span>
+                            <span class="info-value">
+                                {% set room = application.room if application.room else None %}
+                                {% if room %}
+                                    <span class="room-badge">
+                                        <i class="fas fa-door-closed"></i> {{ room }}
+                                    </span>
+                                {% else %}
+                                    Не указано
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">Этаж:</span>
+                            <span class="info-value">{{ application.floor or 'Не указано' }}</span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Статус:</span>
+                            <span class="info-value">
+                                {% if application.status == 'Новый запрос' %}
+                                    <span class="status-badge status-new">Новый запрос</span>
+                                {% elif application.status == 'В обработке' %}
+                                    <span class="status-badge status-in-progress">В обработке</span>
+                                {% elif application.status == 'Завершено' %}
+                                    <span class="status-badge status-completed">Завершено</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Описание проблемы -->
+            <section class="description-section">
+                <h2><i class="fas fa-exclamation-triangle"></i> Описание проблемы</h2>
+                
+                {% if application.description %}
+                    <div class="description-content" style="font-weight: 600; font-size: 16px;">
+                        {{ application.description }}
+                    </div>
+                {% else %}
+                    <div class="no-photos">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>Описание проблемы не предоставлено</p>
+                    </div>
+                {% endif %}
+            </section>
+            
+            <!-- Фотографии -->
+            <section class="photos-section">
+                <div class="photos-header">
+                    <h2><i class="fas fa-camera"></i> Фотографии неисправностей</h2>
+                    <div class="photos-count">
+                        {% if photos and photos|length > 0 %}
+                            {{ photos|length }} фото
+                        {% else %}
+                            Нет фото
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if photos and photos|length > 0 %}
+                    <div class="photos-grid">
+                        {% for photo in photos %}
+                            {% if photo.filepath and photo.filename %}
+                                <div class="photo-item">
+                                    <a href="{{ url_for('static', filename=photo.filepath) }}" 
+                                       data-lightbox="application-photos"
+                                       data-title="{{ photo.filename }}">
+                                        <img src="{{ url_for('static', filename=photo.filepath) }}" 
+                                             alt="Фото неисправности {{ loop.index }}">
+                                    </a>
+                                    <div class="photo-info">
+                                        <span class="photo-name">{{ photo.filename }}</span>
+                                        {% if photo.created_at %}
+                                            <span class="photo-size">
+                                                <i class="far fa-calendar"></i> 
+                                                {{ photo.created_at.strftime('%d.%m.%Y') }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-photos">
+                        <i class="fas fa-images"></i>
+                        <h3>Фотографии не загружены</h3>
+                        <p>Заявитель не прикрепил фотографии неисправностей</p>
+                    </div>
+                {% endif %}
+            </section>
+        </main>
+        
+        <!-- Футер -->
+        <footer class="preview-footer">
+            <div class="footer-info">
+                <p><i class="fas fa-info-circle"></i> ID заявки в системе: <strong>{{ application.id }}</strong></p>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Подключение JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+    <script>
+        // Настройка Lightbox
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'albumLabel': 'Фото %1 из %2',
+            'fadeDuration': 300,
+            'imageFadeDuration': 300
+        });
+        
+        // Функция изменения статуса
+        function changeStatus(newStatus) {
+            const statusNames = {
+                'new': 'Новый запрос',
+                'in_progress': 'В обработке',
+                'completed': 'Завершено'
+            };
+            
+            if (confirm(`Изменить статус заявки на "${statusNames[newStatus]}"?`)) {
+                fetch(`/application/{{ application.id }}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Статус изменен успешно!');
+                        location.reload();
+                    } else {
+                        alert('Ошибка: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Ошибка при изменении статуса');
+                });
+            }
+        }
+        
+        // Функция удаления заявки
+        function deleteApplication() {
+            if (confirm('Вы уверены, что хотите удалить эту заявку? Это действие нельзя отменить.')) {
+                fetch(`/application/{{ application.id }}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Заявка удалена успешно!');
+                        window.location.href = "{{ url_for('apps_panel') }}";
+                    } else {
+                        alert('Ошибка: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Ошибка при удалении заявки');
+                });
+            }
+        }
+        
+        // Добавляем клавиши для навигации
+        document.addEventListener('keydown', function(e) {
+            // Esc - закрыть (если нужно)
+            if (e.key === 'Escape') {
+                // Можно добавить закрытие модального окна если используется
+            }
+            
+            // Ctrl+P - печать
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+            
+            // Стрелки для навигации по фото в lightbox
+            const lightbox = document.querySelector('.lb-image');
+            if (lightbox && lightbox.style.display !== 'none') {
+                if (e.key === 'ArrowLeft') {
+                    document.querySelector('.lb-prev').click();
+                } else if (e.key === 'ArrowRight') {
+                    document.querySelector('.lb-next').click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

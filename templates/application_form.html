@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявка на ремонт оборудования</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tools"></i> Заявка на ремонт оборудования</h1>
+            <p class="subtitle">Заполните форму для подачи заявки на ремонт</p>
+        </header>
+
+        <form id="repairForm" enctype="multipart/form-data" method="post" action="/">
+            <div class="form-section">
+                <h2><i class="fas fa-user"></i> Информация о заявителе</h2>
+                
+                <div class="form-group">
+                    <label for="fullName">ФИО отправителя *</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Иванов Иван Иванович" required>
+                </div>
+                <div class="form-group">
+                    <label for="number">Номер телефона отправителя *</label>
+                    <input type="text" id="phoneNumber" name="phoneNumber" placeholder="+7 9XX XXX-XX-XX" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-map-marker-alt"></i> Местоположение оборудования</h2>
+                
+                <div class="form-group">
+                    <label for="roomNumber">Номер помещения *</label>
+                    <div class="room-input">
+                        <i class="fas fa-door-closed"></i>
+                        <input type="text" id="roomNumber" name="roomNumber" placeholder="101, 205, 310 и т.д." required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-exclamation-triangle"></i> Описание проблемы</h2>
+                
+                <div class="form-group">
+                    <label for="issueDescription">Описание неисправностей *</label>
+                    <textarea id="issueDescription" name="issueDescription" rows="5" required placeholder="Опишите подробно, что случилось, когда возникла проблема, какие ошибки появляются..."></textarea>
+                    <div class="char-counter">
+                        <span id="charCount">0</span> / 1000 символов
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-camera"></i> Фотографии неисправностей</h2>
+                
+                <div class="form-group">
+                    <label for="photos">Загрузите фото неисправностей</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Перетащите файлы сюда или нажмите для выбора</p>
+                        <input type="file" id="photos" name="photos" accept="image/*" multiple>
+                        <span class="file-info">Максимум 5 файлов, до 5 МБ каждый</span>
+                    </div>
+                    <div class="file-preview" id="filePreview"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-clipboard-check"></i> Статус заявки</h2>
+                
+                <div class="form-group">
+                    <label for="status">Статус заявки</label>
+                    <div class="status-display">
+                        <span class="status-badge new">Новая</span>
+                        <p class="status-description">Заявка будет автоматически создана со статусом "Новая". После обработки администратором статус изменится.</p>
+                    </div>
+                    <input type="hidden" id="status" name="status" value="new">
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="notify" name="notify" checked>
+                    <label for="notify">Уведомить меня об изменении статуса заявки</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-paper-plane"></i> Отправить заявку
+                </button>
+                <button type="button" class="btn btn-reset" id="resetBtn">
+                    <i class="fas fa-redo"></i> Очистить форму
+                </button>
+            </div>
+
+            <div class="form-footer">
+                <p><i class="fas fa-info-circle"></i> Поля, отмеченные *, обязательны для заполнения.</p>
+                <p class="estimated-time"><i class="far fa-clock"></i> Среднее время обработки заявки: 1-2 рабочих дня</p>
+            </div>
+        </form>
+    </div>
+<script src="../static/js/script.js"></script>
+</body>
+</html>
